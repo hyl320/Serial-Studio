@@ -109,7 +109,6 @@ set(QT_MODULES
   Widgets
   Network
   Bluetooth
-  GuiPrivate
   SerialPort
   WebSockets
   Core5Compat
@@ -121,6 +120,11 @@ set(QT_MODULES
 # upload one scanline instead of a whole image per tick (spec 0075, R15.1). QRhi is semi-public:
 # source-compatible within a Qt minor series only, so a Qt upgrade re-checks WaterfallRingTexture.
 # The version-tie warning it prints is the acknowledged cost of that, so silence it.
+# In Qt 6.11+, private modules were split into standalone find_package components.
+# In Qt 6.8 and earlier, Qt6::Gui exports Qt6::GuiPrivate directly without a separate package.
+if(Qt6_VERSION VERSION_GREATER_EQUAL 6.10)
+  list(APPEND QT_MODULES GuiPrivate)
+endif()
 set(QT_NO_PRIVATE_MODULE_WARNING ON)
 set(QT_LIBS
   Qt6::Core
@@ -1405,7 +1409,11 @@ set(deploy_tool_options_arg "")
 if(APPLE)
   set(deploy_tool_options_arg "-hardened-runtime -appstore-compliant")
 elseif(WIN32)
-  set(deploy_tool_options_arg "-force-openssl --release --no-translations --no-compiler-runtime")
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(deploy_tool_options_arg "-force-openssl --debug --no-translations")
+  else()
+    set(deploy_tool_options_arg "-force-openssl --release --no-translations --no-compiler-runtime")
+  endif()
 endif()
 
 qt_generate_deploy_qml_app_script(

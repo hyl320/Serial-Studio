@@ -86,6 +86,15 @@ namespace {
   const int index        = metaObject->indexOfProperty(key.toUtf8().constData());
   return index < 0 ? QMetaMethod() : metaObject->property(index).notifySignal();
 }
+
+static QQmlPropertyMap* createPropertyMap(QObject* owner)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+  return QQmlPropertyMap::create(owner);
+#else
+  return new QQmlPropertyMap(owner);
+#endif
+}
 }  // namespace
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +110,7 @@ void ThemePropertyMapTest::seedsEveryKeyOfTheShippedTheme()
   QVERIFY(colors.size() > 100);
 
   QObject owner;
-  QQmlPropertyMap& map = *QQmlPropertyMap::create(&owner);
+  QQmlPropertyMap& map = *createPropertyMap(&owner);
   Misc::syncColorMap(map, colors);
 
   for (auto it = colors.cbegin(); it != colors.cend(); ++it) {
@@ -121,7 +130,7 @@ void ThemePropertyMapTest::unchangedKeysDoNotNotify()
   colors.insert(QStringLiteral("base"), QStringLiteral("#f0f0f0"));
 
   QObject owner;
-  QQmlPropertyMap& map = *QQmlPropertyMap::create(&owner);
+  QQmlPropertyMap& map = *createPropertyMap(&owner);
   Misc::syncColorMap(map, colors);
 
   const auto textSignal = notifySignal(map, QStringLiteral("text"));
@@ -147,7 +156,7 @@ void ThemePropertyMapTest::changedKeysNotifyOncePerKey()
   light.insert(QStringLiteral("base"), QStringLiteral("#f0f0f0"));
 
   QObject owner;
-  QQmlPropertyMap& map = *QQmlPropertyMap::create(&owner);
+  QQmlPropertyMap& map = *createPropertyMap(&owner);
   Misc::syncColorMap(map, light);
 
   QVariantMap dark = light;
@@ -178,7 +187,7 @@ void ThemePropertyMapTest::droppedKeysStayPresentButEmpty()
   full.insert(QStringLiteral("accent"), QStringLiteral("#2277ff"));
 
   QObject owner;
-  QQmlPropertyMap& map = *QQmlPropertyMap::create(&owner);
+  QQmlPropertyMap& map = *createPropertyMap(&owner);
   Misc::syncColorMap(map, full);
 
   QVariantMap partial;

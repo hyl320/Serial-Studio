@@ -96,6 +96,14 @@ set(SS_UNITY_BATCH_SIZE 8 CACHE STRING
 option(WITH_WEBENGINE          "Build against Qt WebEngine (markdown viewers, PDF reports)" ON)
 
 if(WITH_WEBENGINE)
+   find_package(Qt6WebEngineQuick QUIET)
+   if(NOT Qt6WebEngineQuick_FOUND)
+      message(STATUS "Qt6WebEngineQuick not found, automatically disabling WITH_WEBENGINE (falling back to rich text and HTML reports)")
+      set(WITH_WEBENGINE OFF CACHE BOOL "Build against Qt WebEngine" FORCE)
+   endif()
+endif()
+
+if(WITH_WEBENGINE)
    add_compile_definitions(SERIAL_STUDIO_WITH_WEBENGINE)
    message(STATUS "WITH_WEBENGINE=ON, building with Qt WebEngine support")
 else()
@@ -485,10 +493,8 @@ include(${CMAKE_SOURCE_DIR}/cmake/Sanitizers.cmake)
 #---------------------------------------------------------------------------------------------------
 
 if(MSVC)
-   add_compile_definitions(
-      $<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>
-      $<$<CONFIG:Debug>:_HAS_ITERATOR_DEBUGGING=0>
-   )
+   # Note: Do NOT override _ITERATOR_DEBUG_LEVEL to 0 in Debug, as prebuilt Qt6 debug DLLs (Qt6Cored.dll)
+   # are built with the MSVC default (_ITERATOR_DEBUG_LEVEL=2). Mismatch causes instant 0xC0000005 crash.
 else()
    add_compile_options($<$<CONFIG:Debug>:-Og>)
 endif()

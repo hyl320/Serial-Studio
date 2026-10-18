@@ -318,12 +318,16 @@ FocusScope {
   //
   // Drop shadow cast by the dialog.
   //
-  RectangularShadow {
-    blur: 28
-    spread: 2
+  MultiEffect {
+    source: panel
     anchors.fill: panel
-    radius: panel.radius
-    color: Qt.rgba(0, 0, 0, 0.35)
+    shadowEnabled: true
+    shadowBlur: 0.6
+    shadowOpacity: 0.35
+    shadowVerticalOffset: 4
+    shadowColor: Qt.rgba(0, 0, 0, 0.35)
+    enabled: Cpp_Misc_GraphicsBackend.effectsEnabled
+    visible: Cpp_Misc_GraphicsBackend.effectsEnabled
   }
 
   //

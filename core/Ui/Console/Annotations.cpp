@@ -797,9 +797,14 @@ void Console::AnnotationFilter::setRowFilter(int row)
   if (m_rowFilter == row)
     return;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
   beginFilterChange();
   m_rowFilter = row;
   endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
+  m_rowFilter = row;
+  invalidateRowsFilter();
+#endif
   Q_EMIT filterChanged();
 }
 
@@ -811,9 +816,14 @@ void Console::AnnotationFilter::setClassFilter(int cls)
   if (m_classFilter == cls)
     return;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
   beginFilterChange();
   m_classFilter = cls;
   endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
+  m_classFilter = cls;
+  invalidateRowsFilter();
+#endif
   Q_EMIT filterChanged();
 }
 

@@ -36,6 +36,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QQmlContext>
+#include <QQmlError>
 #include <QStringList>
 #include <QSysInfo>
 
@@ -250,15 +251,22 @@ static void MessageHandler(QtMsgType type, const QMessageLogContext& context, co
   else
     message = msg;
 
-  const bool useAnsiColors = Console::Handler::instance().ansiColorsEnabled();
-  const QString output     = Widgets::Terminal::formatDebugMessage(type, message, useAnsiColors);
+  const bool useAnsiColors  = Console::Handler::instance().ansiColorsEnabled();
+  const QString plainOutput = Widgets::Terminal::formatDebugMessage(type, message, false);
+  const QString output      = Widgets::Terminal::formatDebugMessage(type, message, useAnsiColors);
   if (output.isEmpty())
     return;
 
   // code-verify off
-  std::cout << Widgets::Terminal::formatDebugMessage(type, message, false).toStdString()
-            << std::endl;
+  std::cout << plainOutput.toStdString() << std::endl;
   // code-verify on
+
+#if defined(Q_OS_WIN)
+  OutputDebugStringW(reinterpret_cast<const wchar_t*>(plainOutput.utf16()));
+  OutputDebugStringW(L"\n");
+#endif
+  fprintf(stderr, "%s\n", plainOutput.toLocal8Bit().constData());
+  fflush(stderr);
 
   QMetaObject::invokeMethod(
     &Console::Handler::instance(),
@@ -1459,6 +1467,15 @@ void Misc::ModuleManager::registerImageProvidersAndLoadQml()
 
   Widgets::AudioExport::instance().setupExternalConnections();
 #endif
+
+  connect(&m_engine, &QQmlApplicationEngine::objectCreationFailed, [](const QUrl& url) {
+    qCritical() << "CRITICAL: QML object creation failed for:" << url;
+  });
+  connect(&m_engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError>& warnings) {
+    for (const auto& w : warnings) {
+      qWarning() << "QML WARNING:" << w.toString();
+    }
+  });
 
   m_engine.load(QUrl("qrc:/serial-studio.com/gui/qml/main.qml"));
 

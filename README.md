@@ -5,6 +5,9 @@
 [![Buy Pro](https://img.shields.io/badge/Buy%20Pro-Lemon%20Squeezy-blue?logo=lemonsqueezy)](https://store.serial-studio.com/checkout/buy/e33e6d04-639f-46b7-bd68-b46d341c5b16)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4b6f3ce14a684704980fea31d8c1632e)](https://app.codacy.com/gh/Serial-Studio/Serial-Studio/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
+> [!NOTE]
+> **Windows Qt 6.8 适配说明**：本项目为 Serial Studio 在 Windows 下针对 Qt 6.8 (MSVC 2022) 的向下兼容适配版本，内置 `bootstrap.ps1` 一键环境自检与沙盒配置脚本，解决环境污染与 ABI 冲突问题。
+
 **Serial Studio** turns data from your hardware into a live dashboard.
 
 Connect an Arduino, ESP32, STM32, Raspberry Pi, Teensy, or anything else that speaks serial, Bluetooth, a network protocol, or an industrial bus. Describe the data format once in a project file. Serial Studio draws the plots, gauges, maps, and 3D views around it. Send commands back with buttons, sliders, and knobs. Record a session, replay it, export it as a PDF.

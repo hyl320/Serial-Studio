@@ -71,9 +71,14 @@ void DataModel::RowFilterProxy::setQuery(const QString& query)
   if (m_query == query)
     return;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
   beginFilterChange();
   m_query = query;
   endFilterChange(Direction::Rows);
+#else
+  m_query = query;
+  invalidateRowsFilter();
+#endif
   Q_EMIT queryChanged();
 }
 
@@ -85,10 +90,16 @@ void DataModel::RowFilterProxy::setFilterRoles(const QStringList& roles)
   if (m_filterRoles == roles)
     return;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
   beginFilterChange();
   m_filterRoles = roles;
   rebuildRoleCache(sourceModel());
   endFilterChange(Direction::Rows);
+#else
+  m_filterRoles = roles;
+  rebuildRoleCache(sourceModel());
+  invalidateRowsFilter();
+#endif
   Q_EMIT filterRolesChanged();
 }
 
